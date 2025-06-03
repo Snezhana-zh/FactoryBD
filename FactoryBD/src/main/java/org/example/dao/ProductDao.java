@@ -1,13 +1,18 @@
-package org.example.model;
+package org.example.dao;
 
+import org.example.model.Product;
+import org.example.model.ProductCategory;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import java.util.List;
 
-public class ProductDao {
-    private static final SessionFactory sessionFactory;
+public class ProductDao extends BaseDao<Product> {
+    public ProductDao(Class<Product> entityClass) {
+        super(entityClass);
+    }
+    /*private static final SessionFactory sessionFactory;
 
     static {
         try {
@@ -67,5 +72,5 @@ public class ProductDao {
             }
             e.printStackTrace();
         }
-    }
+    }*/
 }

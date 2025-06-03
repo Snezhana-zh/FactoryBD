@@ -2,15 +2,11 @@ package org.example;
 
 import org.example.ui.MainFrame;
 import javax.swing.*;
-/*import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;*/
 
 public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
-                // Устанавливаем Look and Feel системы
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
                 MainFrame frame = new MainFrame();

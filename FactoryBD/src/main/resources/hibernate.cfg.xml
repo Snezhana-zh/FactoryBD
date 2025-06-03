@@ -21,6 +21,24 @@
 
         <!-- Регистрация классов-сущностей -->
         <!--<mapping class="org.example.User"/>-->
+        <mapping class="org.example.model.Brigade"/>
+        <mapping class="org.example.model.Company"/>
+        <mapping class="org.example.model.Department"/>
+        <mapping class="org.example.model.Employee"/>
+        <mapping class="org.example.model.EmployeeLog"/>
+        <mapping class="org.example.model.Engineer"/>
         <mapping class="org.example.model.Product"/>
+        <mapping class="org.example.model.ProductCategory"/>
+        <mapping class="org.example.model.ProductLog"/>
+        <mapping class="org.example.model.ProductModel"/>
+        <!--<mapping class="org.example.model.Role"/>-->
+        <mapping class="org.example.model.TestLab"/>
+        <mapping class="org.example.model.TestLabEquipment"/>
+        <mapping class="org.example.model.Tester"/>
+        <!--<mapping class="org.example.model.TlabDep"/>-->
+        <!--<mapping class="org.example.model.UserAccount"/>
+        <mapping class="org.example.model.UsersRoles"/>-->
+        <mapping class="org.example.model.Worker"/>
+        <mapping class="org.example.model.Workshop"/>
     </session-factory>
 </hibernate-configuration>

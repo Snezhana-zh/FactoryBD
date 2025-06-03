@@ -1,58 +1,25 @@
 package org.example.model;
-
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "products")
-public class Product {
+@Table(name = "product")
+public class Product extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "title", nullable = false)
-    private String name;
+    @ManyToOne
+    @JoinColumn(name = "model_id", referencedColumnName = "id")
+    private ProductModel model;
 
-    @Column(nullable = false)
-    private double price;
-
-    @Column
-    private String description;
-
-    // Геттеры и сеттеры
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ProductLog> logs = new HashSet<>();
 
     @Override
-    public String toString() {
-        return String.format("%s - $%.2f", name, price);
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public ProductModel getModel() { return model; }
+    public void setModel(ProductModel model) { this.model = model; }
 }

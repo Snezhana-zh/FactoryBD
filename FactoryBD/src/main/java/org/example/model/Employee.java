@@ -5,7 +5,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "employee")
-public class Employee {
+public class Employee extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -14,7 +14,7 @@ public class Employee {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "position", nullable = false)
+    @Column(name = "position", columnDefinition = "employee_position", nullable = false)
     private EmployeePosition position;
 
     @OneToOne(mappedBy = "head")
@@ -38,12 +38,10 @@ public class Employee {
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<EmployeeLog> logs = new HashSet<>();
 
-    // Getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
     public EmployeePosition getPosition() { return position; }
     public void setPosition(EmployeePosition position) { this.position = position; }
-    // Other getters and setters...
 }

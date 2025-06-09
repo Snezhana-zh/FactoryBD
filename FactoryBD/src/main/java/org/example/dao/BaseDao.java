@@ -6,6 +6,8 @@ import org.hibernate.Transaction;
 import org.hibernate.boot.registry.selector.spi.StrategyCreator;
 import org.hibernate.cfg.Configuration;
 import java.util.List;
+import org.example.model.Employee;
+import org.hibernate.query.Query;
 
 public class BaseDao<T> {
     private static final SessionFactory sessionFactory;
@@ -28,7 +30,17 @@ public class BaseDao<T> {
         Transaction transaction = null;
         try(Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
-            session.save(entity);
+
+            if (entity instanceof Employee) {
+                Employee employee = (Employee) entity;
+                Query query = session.createNativeQuery(
+                        "INSERT INTO employee (name, position) VALUES (:name, cast(:position as employee_position))"
+                );
+                query.setParameter("name", employee.getName());
+                query.setParameter("position", employee.getPosition().name());
+                query.executeUpdate();
+            }
+            else session.save(entity);
             transaction.commit();
         }
         catch(Exception e) {

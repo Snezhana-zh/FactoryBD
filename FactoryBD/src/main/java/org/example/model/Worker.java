@@ -2,7 +2,7 @@ package org.example.model;
 import javax.persistence.*;
 @Entity
 @Table(name = "workers")
-public class Worker {
+public class Worker extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -3,7 +3,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "engineers")
-public class Engineer {
+public class Engineer extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

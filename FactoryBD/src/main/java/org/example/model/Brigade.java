@@ -5,7 +5,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "brigade")
-public class Brigade {
+public class Brigade extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,5 +28,4 @@ public class Brigade {
     public void setHead(Employee head) { this.head = head; }
     public Workshop getWorkshop() { return workshop; }
     public void setWorkshop(Workshop workshop) { this.workshop = workshop; }
-    // Other getters and setters...
 }

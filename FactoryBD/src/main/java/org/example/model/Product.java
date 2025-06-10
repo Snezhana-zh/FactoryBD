@@ -22,4 +22,6 @@ public class Product extends BaseModel {
     public void setId(Long id) { this.id = id; }
     public ProductModel getModel() { return model; }
     public void setModel(ProductModel model) { this.model = model; }
+    public Set<ProductLog> getLogs() { return logs; }
+    public void setLogs(Set<ProductLog> logs) { this.logs = logs; }
 }

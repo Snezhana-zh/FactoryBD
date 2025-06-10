@@ -38,9 +38,10 @@ public class ProductCategoryForm extends BaseForm {
         saveButton.addActionListener(e -> {
             model.setTitle(titleField.getText());
 
-            Map<String, Object> attributes = new HashMap<>();
-            attributes.put("tags", new String(attributesArea.getText()));
-            model.setAttributes(attributes);
+//            Map<String, Object> attributes = new HashMap<>();
+//            attributes.put("tags", new String(attributesArea.getText()));
+//            model.setAttributes(attributes);
+            model.setAttributes(attributesArea.getText());
 
             if (model.getId() == null) {
                 dao.save(model);

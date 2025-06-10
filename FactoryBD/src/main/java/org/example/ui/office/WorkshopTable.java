@@ -1,18 +1,18 @@
 package org.example.ui.office;
 
 import org.example.dao.BaseDao;
-import org.example.model.Brigade;
+import org.example.model.Workshop;
 import org.example.ui.BaseTable;
 
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
 
-public class BrigadeTable extends BaseTable<Brigade> {
+public class WorkshopTable extends BaseTable<Workshop> {
     private DefaultTableModel model;
 
-    public BrigadeTable() {
+    public WorkshopTable() {
         model = new DefaultTableModel(
-                new Object[]{"ID", "Head", "Workshop_ID"}, 0) {
+                new Object[]{"ID", "Department_ID", "Name", "Head"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -21,25 +21,26 @@ public class BrigadeTable extends BaseTable<Brigade> {
         setModel(model);
     }
 
-    public void set(List<Brigade> models) {
+    public void set(List<Workshop> models) {
         model.setRowCount(0);
 
-        for (Brigade el : models) {
+        for (Workshop el : models) {
 
             model.addRow(new Object[]{
                     el.getId(),
-                    el.getHead().getName(),
-                    el.getWorkshop() != null ? el.getWorkshop().getName() : "N/A",
+                    el.getDepartment().getName(),
+                    el.getName(),
+                    el.getHead().getName()
             });
         }
     }
 
-    public Brigade getSelected() {
+    public Workshop getSelected() {
         int selectedRow = getSelectedRow();
         if (selectedRow >= 0) {
             long id = (long) model.getValueAt(selectedRow, 0);
 
-            return new BaseDao<Brigade>(Brigade.class).getById(id);
+            return new BaseDao<Workshop>(Workshop.class).getById(id);
         }
         return null;
     }

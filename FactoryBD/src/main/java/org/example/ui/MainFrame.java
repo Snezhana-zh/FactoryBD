@@ -1,5 +1,6 @@
 package org.example.ui;
 
+import org.example.QueryPanel;
 import org.example.dao.BaseDao;
 
 import javax.swing.*;
@@ -10,10 +11,8 @@ import org.example.ui.employee.EmployeePanel;
 import org.example.ui.employee.EngineerPanel;
 import org.example.ui.employee.TestersPanel;
 import org.example.ui.employee.WorkersPanel;
-import org.example.ui.office.BrigadePanel;
-import org.example.ui.office.DepartmentForm;
-import org.example.ui.office.DepartmentPanel;
-import org.example.ui.office.TestLabPanel;
+import org.example.ui.logs.ProductLogsPanel;
+import org.example.ui.office.*;
 import org.example.ui.products.*;
 import org.hibernate.jdbc.Work;
 
@@ -49,6 +48,9 @@ public class MainFrame extends JFrame {
         JMenuItem brigadeItem = new JMenuItem("Brigade");
         JMenuItem departmentItem = new JMenuItem("Department");
         JMenuItem testLabItem = new JMenuItem("TestLab");
+        JMenuItem productLogsItem = new JMenuItem("ProductLogs");
+        JMenuItem workshopItem = new JMenuItem("Workshop");
+        JMenuItem queryItem = new JMenuItem("Query");
 
         // Добавляем меню в менюбар
         menuBar.add(modulesMenu);
@@ -62,6 +64,9 @@ public class MainFrame extends JFrame {
         modulesMenu.add(brigadeItem);
         modulesMenu.add(departmentItem);
         modulesMenu.add(testLabItem);
+        modulesMenu.add(productLogsItem);
+        modulesMenu.add(workshopItem);
+        modulesMenu.add(queryItem);
 
         setJMenuBar(menuBar);
 
@@ -80,6 +85,9 @@ public class MainFrame extends JFrame {
         contentPanel.add(new BrigadePanel(new BaseDao<>(Brigade.class), this), "Brigade");
         contentPanel.add(new DepartmentPanel(new BaseDao<>(Department.class), this), "Department");
         contentPanel.add(new TestLabPanel(new BaseDao<>(TestLab.class), this), "TestLab");
+        contentPanel.add(new ProductLogsPanel(new BaseDao<>(ProductLog.class), this), "ProductLog");
+        contentPanel.add(new WorkshopPanel(new BaseDao<>(Workshop.class), this), "Workshop");
+        contentPanel.add(new QueryPanel(), "Query");
 
 
         // Обработчики для меню
@@ -95,6 +103,9 @@ public class MainFrame extends JFrame {
         brigadeItem.addActionListener(e -> cardLayout.show(contentPanel, "Brigade"));
         departmentItem.addActionListener(e -> cardLayout.show(contentPanel, "Department"));
         testLabItem.addActionListener(e -> cardLayout.show(contentPanel, "TestLab"));
+        productLogsItem.addActionListener(e -> cardLayout.show(contentPanel, "ProductLog"));
+        workshopItem.addActionListener(e -> cardLayout.show(contentPanel, "Workshop"));
+        queryItem.addActionListener(e -> cardLayout.show(contentPanel, "Query"));
 
         // Добавляем компоненты на форму
         setLayout(new BorderLayout());

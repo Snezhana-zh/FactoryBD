@@ -51,7 +51,7 @@ public class DepartmentForm extends BaseForm {
         panel.add(employeeCombo);
 
         // Company selection
-        panel.add(new JLabel("Workshop:"));
+        panel.add(new JLabel("Company:"));
         workshopCombo = new JComboBox<>();
         workshopCombo.addItem(null);
         for (Company ws : workshopDao.getAll()) {

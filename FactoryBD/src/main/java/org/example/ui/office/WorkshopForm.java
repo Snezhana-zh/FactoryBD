@@ -1,34 +1,36 @@
 package org.example.ui.office;
 
 import org.example.dao.BaseDao;
-import org.example.model.Brigade;
-import org.example.model.Employee;
-import org.example.model.Worker;
-import org.example.model.Workshop;
+import org.example.model.*;
 import org.example.ui.BaseForm;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class BrigadeForm extends BaseForm {
-    private Brigade model;
+public class WorkshopForm extends BaseForm {
+    private Workshop model;
     private final JComboBox<Employee> employeeCombo;
-    private final JComboBox<Workshop> workshopCombo;
+    private final JComboBox<Department> departmentCombo;
+    private final JTextField nameField;
 
-    public BrigadeForm(JFrame parent, Brigade model_) {
-        super(parent, "Brigade Form", true);
-        this.model = model_ != null ? model_ : new Brigade();
+    public WorkshopForm(JFrame parent, Workshop model_) {
+        super(parent, "Workshop Form", true);
+        this.model = model_ != null ? model_ : new Workshop();
 
         JPanel panel = new JPanel(new GridLayout(0, 2, 10, 10));
         setSize(400, 300);
 
-        BaseDao<Worker> employeeDao = new BaseDao<>(Worker.class);
-        BaseDao<Workshop> workshopDao = new BaseDao<>(Workshop.class);
+        panel.add(new JLabel("Name:"));
+        nameField = new JTextField(model.getName());
+        panel.add(nameField);
+
+        BaseDao<Engineer> employeeDao = new BaseDao<>(Engineer.class);
+        BaseDao<Department> departmentDao = new BaseDao<>(Department.class);
 
         // Employee selection
         panel.add(new JLabel("Head:"));
         employeeCombo = new JComboBox<>();
-        for (Worker emp : employeeDao.getAll()) {
+        for (Engineer emp : employeeDao.getAll()) {
             employeeCombo.addItem(emp.getEmployee());
         }
         employeeCombo.setRenderer(new DefaultListCellRenderer() {
@@ -46,19 +48,19 @@ public class BrigadeForm extends BaseForm {
         panel.add(employeeCombo);
 
         // Workshop selection
-        panel.add(new JLabel("Workshop:"));
-        workshopCombo = new JComboBox<>();
-        workshopCombo.addItem(null);
-        for (Workshop ws : workshopDao.getAll()) {
-            workshopCombo.addItem(ws);
+        panel.add(new JLabel("Department:"));
+        departmentCombo = new JComboBox<>();
+        departmentCombo.addItem(null);
+        for (Department dp : departmentDao.getAll()) {
+            departmentCombo.addItem(dp);
         }
-        workshopCombo.setRenderer(new DefaultListCellRenderer() {
+        departmentCombo.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                           boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof Workshop) {
-                    setText(((Workshop) value).getName());
+                if (value instanceof Department) {
+                    setText(((Department) value).getName());
                 } else {
                     setText("None");
                 }
@@ -66,17 +68,18 @@ public class BrigadeForm extends BaseForm {
             }
         });
 
-        workshopCombo.setSelectedItem(model.getWorkshop());
+        departmentCombo.setSelectedItem(model.getDepartment());
 
-        panel.add(workshopCombo);
+        panel.add(departmentCombo);
 
-        BaseDao<Brigade> dao = new BaseDao<>(Brigade.class);
+        BaseDao<Workshop> dao = new BaseDao<>(Workshop.class);
 
         // Кнопки
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> {
             model.setHead((Employee) employeeCombo.getSelectedItem());
-            model.setWorkshop((Workshop) workshopCombo.getSelectedItem());
+            model.setDepartment((Department) departmentCombo.getSelectedItem());
+            model.setName(nameField.getText());
 
             if (model.getId() == null) {
                 dao.save(model);

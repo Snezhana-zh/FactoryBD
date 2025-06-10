@@ -9,7 +9,8 @@ public class Main {
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
-                MainFrame frame = new MainFrame();
+                //MainFrame frame = new MainFrame();
+                ProductionQueryPanel frame = new ProductionQueryPanel();
                 frame.setVisible(true);
             } catch (Exception e) {
                 e.printStackTrace();

@@ -29,7 +29,7 @@ public class EngineerTable extends BaseTable<Engineer> {
             model.addRow(new Object[]{
                     el.getId(),
                     el.getEmployee().getName(),
-                    el.getWorkshop() != null ? el.getWorkshop().getId() : "N/A",
+                    el.getWorkshop() != null ? el.getWorkshop().getName() : "N/A",
             });
         }
     }

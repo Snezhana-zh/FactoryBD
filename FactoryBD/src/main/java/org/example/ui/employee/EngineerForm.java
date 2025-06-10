@@ -45,7 +45,7 @@ public class EngineerForm extends BaseForm {
         panel.add(employeeCombo);
 
         // Brigade selection
-        panel.add(new JLabel("Brigade:"));
+        panel.add(new JLabel("Workshop:"));
         brigadeCombo = new JComboBox<>();
         brigadeCombo.addItem(null);
         for (Workshop br : workshopDao.getAll()) {
@@ -57,7 +57,7 @@ public class EngineerForm extends BaseForm {
                                                           boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value instanceof Workshop) {
-                    setText(((Workshop) value).getId().toString());
+                    setText(((Workshop) value).getName());
                 } else {
                     setText("None");
                 }

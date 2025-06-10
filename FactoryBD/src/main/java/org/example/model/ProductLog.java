@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "product_logs")
-public class ProductLog {
+public class ProductLog extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -13,10 +13,10 @@ public class ProductLog {
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private Product product;
 
-    @Column(name = "start_work", nullable = false)
+    @Column(name = "start_work", nullable = false, columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private LocalDateTime startWork;
 
-    @Column(name = "end_work")
+    @Column(name = "end_work", columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private LocalDateTime endWork;
 
     @ManyToOne

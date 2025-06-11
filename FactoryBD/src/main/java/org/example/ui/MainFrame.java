@@ -1,6 +1,5 @@
 package org.example.ui;
 
-import org.example.QueryPanel;
 import org.example.dao.BaseDao;
 
 import javax.swing.*;
@@ -14,7 +13,6 @@ import org.example.ui.employee.WorkersPanel;
 import org.example.ui.logs.ProductLogsPanel;
 import org.example.ui.office.*;
 import org.example.ui.products.*;
-import org.hibernate.jdbc.Work;
 
 public class MainFrame extends JFrame {
     // private final ProductDao productDao;
@@ -50,7 +48,6 @@ public class MainFrame extends JFrame {
         JMenuItem testLabItem = new JMenuItem("TestLab");
         JMenuItem productLogsItem = new JMenuItem("ProductLogs");
         JMenuItem workshopItem = new JMenuItem("Workshop");
-        JMenuItem queryItem = new JMenuItem("Query");
 
         // Добавляем меню в менюбар
         menuBar.add(modulesMenu);
@@ -66,7 +63,6 @@ public class MainFrame extends JFrame {
         modulesMenu.add(testLabItem);
         modulesMenu.add(productLogsItem);
         modulesMenu.add(workshopItem);
-        modulesMenu.add(queryItem);
 
         setJMenuBar(menuBar);
 
@@ -87,8 +83,6 @@ public class MainFrame extends JFrame {
         contentPanel.add(new TestLabPanel(new BaseDao<>(TestLab.class), this), "TestLab");
         contentPanel.add(new ProductLogsPanel(new BaseDao<>(ProductLog.class), this), "ProductLog");
         contentPanel.add(new WorkshopPanel(new BaseDao<>(Workshop.class), this), "Workshop");
-        contentPanel.add(new QueryPanel(), "Query");
-
 
         // Обработчики для меню
         productsItem.addActionListener(e -> cardLayout.show(contentPanel, "Products"));
@@ -105,7 +99,6 @@ public class MainFrame extends JFrame {
         testLabItem.addActionListener(e -> cardLayout.show(contentPanel, "TestLab"));
         productLogsItem.addActionListener(e -> cardLayout.show(contentPanel, "ProductLog"));
         workshopItem.addActionListener(e -> cardLayout.show(contentPanel, "Workshop"));
-        queryItem.addActionListener(e -> cardLayout.show(contentPanel, "Query"));
 
         // Добавляем компоненты на форму
         setLayout(new BorderLayout());

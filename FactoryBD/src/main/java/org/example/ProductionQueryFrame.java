@@ -5,33 +5,29 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public class ProductionQueryPanel extends JFrame {
+public class ProductionQueryFrame extends JFrame {
     private final JTextArea resultArea;
     private final QueryRepository repository;
     private final JTabbedPane tabbedPane;
 
-    public ProductionQueryPanel() {
+    public ProductionQueryFrame() {
         this.repository = new QueryRepository();
         setTitle("Production Database Query Tool");
         setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // Главная панель с вертикальным расположением
         JPanel mainPanel = new JPanel(new BorderLayout());
 
-        // Панель с вкладками для разных групп запросов
         tabbedPane = new JTabbedPane();
         createProductQueriesTab();
         createEmployeeQueriesTab();
         createTestLabQueriesTab();
         createBrigadeQueriesTab();
 
-        // Область результатов (в центре)
         resultArea = new JTextArea();
         resultArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(resultArea);
 
-        // Панель управления
         JPanel controlPanel = new JPanel();
         JButton clearButton = new JButton("Очистить результаты");
         clearButton.addActionListener(e -> resultArea.setText(""));
@@ -45,7 +41,7 @@ public class ProductionQueryPanel extends JFrame {
     }
 
     private void createProductQueriesTab() {
-        JPanel productPanel = new JPanel(new GridLayout(4, 1, 10, 10));
+        JPanel productPanel = new JPanel(new GridLayout(5, 1, 15, 10));
         productPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // Запрос 1: Изделия по цеху и категории
@@ -63,7 +59,7 @@ public class ProductionQueryPanel extends JFrame {
                 Long categoryId = categoryIdField1.getText().isEmpty() ? null : Long.parseLong(categoryIdField1.getText());
                 List<Object[]> results = repository.getProductsByWorkshopAndCategory(workshopId, categoryId);
                 displayResults("Изделия цеха " + workshopId +
-                        (categoryId != null ? " категории " + categoryId : ""), results);
+                        (categoryId != null ? " категории " + categoryId : "") + "(model, category)", results);
             } catch (NumberFormatException ex) {
                 showError("Введите корректные числовые ID");
             }
@@ -73,7 +69,7 @@ public class ProductionQueryPanel extends JFrame {
 
         // Запрос 2: Изделия за период
         JPanel query2Panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        query2Panel.add(new JLabel("Цех:"));
+        query2Panel.add(new JLabel("Участок:"));
         JTextField workshopIdField2 = new JTextField(5);
         query2Panel.add(workshopIdField2);
         query2Panel.add(new JLabel("Категория (опционально):"));
@@ -95,7 +91,7 @@ public class ProductionQueryPanel extends JFrame {
                 LocalDateTime start = LocalDateTime.parse(startDateField.getText() + "T00:00");
                 LocalDateTime end = LocalDateTime.parse(endDateField.getText() + "T23:59");
                 List<Object[]> results = repository.getProductsCountByPeriod(workshopId, categoryId, start, end);
-                displayResults("Статистика производства цеха " + workshopId, results);
+                displayResults("Статистика производства цеха " + workshopId + "(count, model, category)", results);
             } catch (Exception ex) {
                 showError("Ошибка формата данных: " + ex.getMessage());
             }
@@ -105,7 +101,7 @@ public class ProductionQueryPanel extends JFrame {
 
         // Запрос 8: Текущие изделия
         JPanel query8Panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        query8Panel.add(new JLabel("Цех:"));
+        query8Panel.add(new JLabel("Участок:"));
         JTextField workshopIdField8 = new JTextField(5);
         query8Panel.add(workshopIdField8);
         JButton query8Button = new JButton("Текущие изделия");
@@ -113,9 +109,9 @@ public class ProductionQueryPanel extends JFrame {
             try {
                 long workshopId = Long.parseLong(workshopIdField8.getText());
                 List<Object[]> results = repository.getCurrentProducts(workshopId);
-                displayResults("Текущие изделия в цехе " + workshopId, results);
+                displayResults("Текущие изделия на участке " + workshopId + "(id, model, category)", results);
             } catch (NumberFormatException ex) {
-                showError("Введите корректный ID цеха");
+                showError("Введите корректный ID");
             }
         });
         query8Panel.add(query8Button);
@@ -131,13 +127,31 @@ public class ProductionQueryPanel extends JFrame {
             try {
                 long productId = Long.parseLong(productIdField5.getText());
                 List<Object[]> results = repository.getProductWorkflow(productId);
-                displayResults("История работ по изделию " + productId, results);
+                displayResults("История работ по изделию " + productId + "(start date, end date, status)", results);
             } catch (NumberFormatException ex) {
                 showError("Введите корректный ID изделия");
             }
         });
         query5Panel.add(query5Button);
         productPanel.add(query5Panel);
+
+        // Запрос 14: текущие изделия с количеством
+        JPanel query14Panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        query14Panel.add(new JLabel("ID участка:"));
+        JTextField productIdField14 = new JTextField(5);
+        query14Panel.add(productIdField14);
+        JButton query14Button = new JButton("Получить статистику по количеству");
+        query14Button.addActionListener(e -> {
+            try {
+                long productId = Long.parseLong(productIdField14.getText());
+                List<Object[]> results = repository.getCurrentProductsCount(productId);
+                displayResults("Текущие изделия с количеством для участка" + productId + "(count, category)", results);
+            } catch (NumberFormatException ex) {
+                showError("Введите корректный ID");
+            }
+        });
+        query14Panel.add(query14Button);
+        productPanel.add(query14Panel);
 
         tabbedPane.addTab("Изделия", productPanel);
     }
@@ -156,9 +170,9 @@ public class ProductionQueryPanel extends JFrame {
             try {
                 long workshopId = Long.parseLong(workshopIdField3.getText());
                 List<Object[]> results = repository.getEmployeesByWorkshop(workshopId);
-                displayResults("Кадровый состав цеха " + workshopId, results);
+                displayResults("Кадровый состав участка " + workshopId + "(position, count)", results);
             } catch (NumberFormatException ex) {
-                showError("Введите корректный ID цеха");
+                showError("Введите корректный ID");
             }
         });
         query3Panel.add(query3Button);
@@ -174,13 +188,31 @@ public class ProductionQueryPanel extends JFrame {
             try {
                 long departmentId = Long.parseLong(departmentIdField4.getText());
                 List<Object[]> results = repository.getWorkshopsWithHeads(departmentId);
-                displayResults("Участки отдела " + departmentId, results);
+                displayResults("Участки отдела " + departmentId + "(workshop, name)", results);
             } catch (NumberFormatException ex) {
                 showError("Введите корректный ID отдела");
             }
         });
         query4Panel.add(query4Button);
         employeePanel.add(query4Panel);
+
+        // Запрос 7: Бригады и начальники
+        JPanel query7Panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        query7Panel.add(new JLabel("ID участка:"));
+        JTextField departmentIdField7 = new JTextField(5);
+        query7Panel.add(departmentIdField7);
+        JButton query7Button = new JButton("Бригады и начальники");
+        query7Button.addActionListener(e -> {
+            try {
+                long departmentId = Long.parseLong(departmentIdField7.getText());
+                List<Object[]> results = repository.getBrigadeHeads(departmentId);
+                displayResults("Бригады участка " + departmentId + "(id brigade, head)", results);
+            } catch (NumberFormatException ex) {
+                showError("Введите корректный ID");
+            }
+        });
+        query7Panel.add(query7Button);
+        employeePanel.add(query7Panel);
 
         tabbedPane.addTab("Персонал", employeePanel);
     }
@@ -199,7 +231,7 @@ public class ProductionQueryPanel extends JFrame {
             try {
                 long productId = Long.parseLong(productIdField10.getText());
                 List<Object[]> results = repository.getTestLabsForProduct(productId);
-                displayResults("Лаборатории для изделия " + productId, results);
+                displayResults("Лаборатории для изделия " + productId + "(id, title lab)", results);
             } catch (NumberFormatException ex) {
                 showError("Введите корректный ID изделия");
             }
@@ -231,7 +263,7 @@ public class ProductionQueryPanel extends JFrame {
                 LocalDateTime start = LocalDateTime.parse(startDateField11.getText() + "T00:00");
                 LocalDateTime end = LocalDateTime.parse(endDateField11.getText() + "T23:59");
                 List<Object[]> results = repository.getTestedProducts(testLabId, categoryId, start, end);
-                displayResults("Изделия в лаборатории " + testLabId, results);
+                displayResults("Изделия в лаборатории " + testLabId + "(id, model, category)", results);
             } catch (Exception ex) {
                 showError("Ошибка формата данных: " + ex.getMessage());
             }
@@ -249,7 +281,7 @@ public class ProductionQueryPanel extends JFrame {
             try {
                 long productId = Long.parseLong(productIdField12.getText());
                 List<Object[]> results = repository.getTestersForProduct(productId);
-                displayResults("Испытатели изделия " + productId, results);
+                displayResults("Испытатели изделия " + productId + "(id, name)", results);
             } catch (NumberFormatException ex) {
                 showError("Введите корректный ID изделия");
             }
@@ -266,7 +298,7 @@ public class ProductionQueryPanel extends JFrame {
 
         // Запрос 6: Состав бригад
         JPanel query6Panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        query6Panel.add(new JLabel("Цех:"));
+        query6Panel.add(new JLabel("Участок:"));
         JTextField workshopIdField6 = new JTextField(5);
         query6Panel.add(workshopIdField6);
         JButton query6Button = new JButton("Состав бригад");
@@ -274,9 +306,9 @@ public class ProductionQueryPanel extends JFrame {
             try {
                 long workshopId = Long.parseLong(workshopIdField6.getText());
                 List<Object[]> results = repository.getBrigadeMembers(workshopId);
-                displayResults("Бригады цеха " + workshopId, results);
+                displayResults("Бригады участка " + workshopId + "(id, model, category)", results);
             } catch (NumberFormatException ex) {
-                showError("Введите корректный ID цеха");
+                showError("Введите корректный ID");
             }
         });
         query6Panel.add(query6Button);
@@ -292,7 +324,7 @@ public class ProductionQueryPanel extends JFrame {
             try {
                 long productId = Long.parseLong(productIdField9.getText());
                 List<Object[]> results = repository.getProductBrigades(productId);
-                displayResults("Бригады для изделия " + productId, results);
+                displayResults("Бригады для изделия " + productId + "(brigade id, head, empl id, empl name)", results);
             } catch (NumberFormatException ex) {
                 showError("Введите корректный ID изделия");
             }
@@ -312,7 +344,7 @@ public class ProductionQueryPanel extends JFrame {
         } else {
             for (Object[] row : results) {
                 for (Object cell : row) {
-                    sb.append(cell != null ? cell.toString() : "null").append("\t");
+                    sb.append(cell != null ? cell.toString() : "null").append("    ");
                 }
                 sb.append("\n");
             }

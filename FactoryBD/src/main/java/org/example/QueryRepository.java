@@ -1,8 +1,8 @@
 package org.example;
 
+import org.example.model.EmployeePosition;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 
@@ -24,34 +24,6 @@ public class QueryRepository {
         }
     }
 
-//    public List<Object[]> getModels(long workshop_id, long category_id) {
-//        Transaction transaction = null;
-//        try(Session session = sessionFactory.openSession()) {
-//            transaction = session.beginTransaction();
-//
-//            Query query = session.createNativeQuery(
-//                    "SELECT pm.title AS model_name, pc.title AS category_name\n" +
-//                            "FROM product_model pm\n" +
-//                            "JOIN product_category pc ON pm.category_id = pc.id\n" +
-//                            "JOIN department d ON pm.department_id = d.id\n" +
-//                            "JOIN workshop w ON w.department_id = d.id\n" +
-//                            "WHERE w.id = :workshop_id AND pc.id = :category_id;"
-//            );
-//            query.setParameter("workshop_id", workshop_id);
-//            query.setParameter("category_id", category_id);
-//            query.executeUpdate();
-//
-//            transaction.commit();
-//            return query.getResultList();
-//        }
-//        catch(Exception e) {
-//            if (transaction != null) {
-//                transaction.rollback();
-//            }
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
     // 1. Получить перечень видов изделий
     public List<Object[]> getProductsByWorkshopAndCategory(long workshopId, Long categoryId) {
         try (Session session = sessionFactory.openSession()) {
@@ -111,81 +83,52 @@ public class QueryRepository {
     }
 
     // 3. Получить данные о кадровом составе
-
-    public List<Object[]> getEmployeesByWorkshop(long workshop_id) {
+    public List<Object[]> getEmployeesByWorkshop(long workshopId) {
         try (Session session = sessionFactory.openSession()) {
-            String sql = "SELECT e.position, COUNT(e.id) AS employee_count " +
-                    "FROM employee e " +
-                    "JOIN engineers eng ON e.id = eng.employee_id " +
-                    "JOIN workshop ws ON eng.workshop_id = ws.id " +
-                    "WHERE ws.id = :workshop_id " +
-                    "GROUP BY e.position;";
+            String hqlWorkers = "SELECT e.position, COUNT(e.id) " +
+                    "FROM Employee e " +
+                    "JOIN e.worker w " +
+                    "JOIN w.brigade b " +
+                    "JOIN b.workshop wsh " +
+                    "WHERE wsh.id = :workshopId " +
+                    "GROUP BY e.position";
 
-            return session.createNativeQuery(sql, Object[].class)
-                    .setParameter("workshop_id", workshop_id)
+            String hqlEngineers = "SELECT e.position, COUNT(e.id) " +
+                    "FROM Employee e " +
+                    "JOIN e.engineer eng " +
+                    "JOIN eng.workshop wsh " +
+                    "WHERE wsh.id = :workshopId " +
+                    "GROUP BY e.position";
+
+            // Объединяем результаты
+            List<Object[]> workers = session.createQuery(hqlWorkers, Object[].class)
+                    .setParameter("workshopId", workshopId)
                     .getResultList();
+
+            List<Object[]> engineers = session.createQuery(hqlEngineers, Object[].class)
+                    .setParameter("workshopId", workshopId)
+                    .getResultList();
+
+            // Собираем и объединяем результаты
+            Map<String, Long> resultMap = new HashMap<>();
+
+            addToResultMap(resultMap, workers);
+            addToResultMap(resultMap, engineers);
+
+            return resultMap.entrySet().stream()
+                    .map(e -> new Object[]{e.getKey(), e.getValue()})
+                    .collect(Collectors.toList());
         }
     }
-//    public List<Object[]> getEmployeesByWorkshop(long workshopId) {
-//        try (Session session = sessionFactory.openSession()) {
-//            String hql = "SELECT e.position, COUNT(e.id) " +
-//                    "FROM Employee e " +
-//                    "JOIN e.workshop w " +
-//                    "WHERE w.id = :workshopId " +
-//                    "GROUP BY e.position";
-//
-//            return session.createQuery(hql, Object[].class)
-//                    .setParameter("workshopId", workshopId)
-//                    .getResultList();
-//        }
-//    }
-//    public List<Object[]> getEmployeesByWorkshop(long workshopId) {
-//        try (Session session = sessionFactory.openSession()) {
-//            // Для рабочих
-//            String hqlWorkers = "SELECT e.position, COUNT(e.id) " +
-//                    "FROM Employee e " +
-//                    "JOIN e.worker w " +
-//                    "JOIN w.brigade b " +
-//                    "JOIN b.workshop wsh " +
-//                    "WHERE wsh.id = :workshopId " +
-//                    "GROUP BY e.position";
-//
-//            // Для инженеров
-//            String hqlEngineers = "SELECT e.position, COUNT(e.id) " +
-//                    "FROM Employee e " +
-//                    "JOIN e.engineer eng " +
-//                    "JOIN eng.workshop wsh " +
-//                    "WHERE wsh.id = :workshopId " +
-//                    "GROUP BY e.position";
-//
-//            // Объединяем результаты
-//            List<Object[]> workers = session.createQuery(hqlWorkers, Object[].class)
-//                    .setParameter("workshopId", workshopId)
-//                    .getResultList();
-//
-//            List<Object[]> engineers = session.createQuery(hqlEngineers, Object[].class)
-//                    .setParameter("workshopId", workshopId)
-//                    .getResultList();
-//
-//            // Собираем и объединяем результаты
-//            Map<String, Long> resultMap = new HashMap<>();
-//
-//            addToResultMap(resultMap, workers);
-//            addToResultMap(resultMap, engineers);
-//
-//            return resultMap.entrySet().stream()
-//                    .map(e -> new Object[]{e.getKey(), e.getValue()})
-//                    .collect(Collectors.toList());
-//        }
-//    }
-//
-//    private void addToResultMap(Map<String, Long> map, List<Object[]> data) {
-//        for (Object[] row : data) {
-//            String position = (String) row[0];
-//            Long count = (Long) row[1];
-//            map.merge(position, count, Long::sum);
-//        }
-//    }
+
+    private void addToResultMap(Map<String, Long> map, List<Object[]> data) {
+        for (Object[] row : data) {
+            EmployeePosition pos = (EmployeePosition) row[0];
+            String position = pos.name();
+            Long count = (Long) row[1];
+            map.merge(position, count, Long::sum);
+        }
+    }
 
     // 4. Получить участки и начальников
     public List<Object[]> getWorkshopsWithHeads(long departmentId) {
@@ -201,35 +144,15 @@ public class QueryRepository {
     }
 
     // 5. Получить перечень работ для изделия
-//    public List<Object[]> getProductWorkflow(long productId) {
-//        try (Session session = sessionFactory.openSession()) {
-//            return session.createQuery(
-//                            "SELECT pl.startWork, pl.endWork, " +
-//                                    "CASE " +
-//                                    "   WHEN pl.workshop IS NOT NULL THEN CONCAT('Производство в цехе: ', w.name) " +
-//                                    "   WHEN pl.testlab IS NOT NULL THEN CONCAT('Тестирование в лаборатории: ', tl.title) " +
-//                                    "   ELSE 'Неизвестный этап' " +
-//                                    "END " +
-//                                    "FROM ProductLog pl " +
-//                                    "LEFT JOIN pl.workshop w " +
-//                                    "LEFT JOIN pl.testlab tl " +
-//                                    "WHERE pl.product.id = :productId " +
-//                                    "ORDER BY pl.startWork", Object[].class)
-//                    .setParameter("productId", productId)
-//                    .getResultList();
-//        }
-//    }
     public List<Object[]> getProductWorkflow(long productId) {
         try (Session session = sessionFactory.openSession()) {
             return session.createQuery(
                             "SELECT pl.startWork, pl.endWork, " +
-                                    "COALESCE(" +
-                                    "   NULLIF(CONCAT('Производство в цехе: ', w.name), 'Производство в цехе: '), " +
-                                    "   COALESCE(" +
-                                    "       NULLIF(CONCAT('Тестирование в лаборатории: ', tl.title), 'Тестирование в лаборатории: '), " +
-                                    "       'Неизвестный этап'" +
-                                    "   )" +
-                                    ") " +
+                                    "CASE " +
+                                    "   WHEN pl.workshop IS NOT NULL THEN CONCAT('Производство в цехе: ', w.name) " +
+                                    "   WHEN pl.testlab IS NOT NULL THEN CONCAT('Тестирование в лаборатории: ', tl.title) " +
+                                    "   ELSE 'Неизвестный этап' " +
+                                    "END " +
                                     "FROM ProductLog pl " +
                                     "LEFT JOIN pl.workshop w " +
                                     "LEFT JOIN pl.testlab tl " +
@@ -255,14 +178,14 @@ public class QueryRepository {
     }
 
     // 7. Получить перечень мастеров
-    public List<String> getBrigadeHeads(long departmentId) {
+    public List<Object[]> getBrigadeHeads(long departmentId) {
         try (Session session = sessionFactory.openSession()) {
             return session.createQuery(
-                            "SELECT DISTINCT e.name " +
+                            "SELECT DISTINCT b.id, e.name " +
                                     "FROM Brigade b " +
                                     "JOIN b.head e " +
                                     "JOIN b.workshop w " +
-                                    "WHERE w.department.id = :departmentId", String.class)
+                                    "WHERE w.id = :departmentId", Object[].class)
                     .setParameter("departmentId", departmentId)
                     .getResultList();
         }
@@ -370,20 +293,19 @@ public class QueryRepository {
     }
 
     // 14. Получить текущие изделия с количеством
-    public List<Object[]> getCurrentProductsCount(long companyId) {
+    public List<Object[]> getCurrentProductsCount(long workshopId) {
         try (Session session = sessionFactory.openSession()) {
             return session.createQuery(
-                            "SELECT COUNT(p.id), pm.title, pc.title " +
+                            "SELECT COUNT(*), pc.title " +
                                     "FROM Product p " +
                                     "JOIN p.model pm " +
                                     "JOIN pm.category pc " +
                                     "JOIN p.logs pl " +
-                                    "JOIN pl.workshop w " +
-                                    "JOIN w.department d " +
-                                    "WHERE d.company.id = :companyId " +
+                                    "JOIN pl.workshop w "+
+                                    "WHERE w.id = :workshopId " +
                                     "AND pl.endWork IS NULL " +
-                                    "GROUP BY pm.title, pc.title", Object[].class)
-                    .setParameter("companyId", companyId)
+                                    "GROUP BY pc.title", Object[].class)
+                    .setParameter("workshopId", workshopId)
                     .getResultList();
         }
     }
